@@ -2,32 +2,41 @@ name: Site Monitor
 
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *'   # каждый час по UTC
+  workflow_dispatch:       # ручной запуск
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          python-version: '3.11'
-      - run: pip install requests
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Run monitor
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python monitor.py
-      - name: Commit status
+
+      - name: Commit and push status
         run: |
           git config user.name 'github-actions'
-          git config user.email 'actions@github.com'
+          git config user.email 'github-actions@github.com'
           git add status.json
-          git diff --cached --quiet || git commit -m "Update status $(date -u +%Y-%m-%d_%H:%M)"
-          git push
+          git diff --staged --quiet || git commit -m "Update status $(date +%Y-%m-%d_%H:%M)"
+          git push origin main
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-logs
+          path: status.json

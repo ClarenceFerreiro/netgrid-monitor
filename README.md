@@ -25,7 +25,6 @@ Uptime monitoring для сайтов netgrid.host через **GitHub Actions**
 
 - Название: `netgrid-monitor`
 - Public или Private — без разницы
-- **Не инициализировать** README (мы загрузим сами)
 
 ### 2. Добавить Secrets
 
@@ -33,7 +32,7 @@ Uptime monitoring для сайтов netgrid.host через **GitHub Actions**
 
 | Secret | Описание |
 |--------|----------|
-| `TELEGRAM_BOT_TOKEN` | Токен Telegram бота (получить у @BotFather) |
+| `TELEGRAM_BOT_TOKEN` | Токен Telegram бота |
 | `TELEGRAM_CHAT_ID` | ID чата для уведомлений |
 
 ### 3. Загрузить файлы
@@ -56,7 +55,7 @@ GitHub → Actions → Site Monitor → **Run workflow**.
 
 ## Изменение списка сайтов
 
-Отредактируй `SITES` в `monitor.py`:
+Отредактировать `SITES` в `monitor.py`:
 
 ```python
 SITES = [

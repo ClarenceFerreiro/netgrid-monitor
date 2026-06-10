@@ -39,8 +39,11 @@ jobs:
           git config user.email 'github-actions@github.com'
           git add status.json
           git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git stash push -m "status-$(date +%s)"
+          git pull --rebase origin main
+          git stash pop || true
+          git add status.json
           git commit -m "Update status $(date +%Y-%m-%d_%H:%M)"
-          git pull --rebase origin main --autostash
           git push origin main
 
       - name: Upload artifacts on failure

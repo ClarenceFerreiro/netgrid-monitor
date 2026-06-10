@@ -27,11 +27,14 @@ jobs:
         run: python monitor.py
 
       - name: Commit and push status
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         run: |
           git config user.name 'github-actions'
           git config user.email 'github-actions@github.com'
           git add status.json
           git diff --staged --quiet || git commit -m "Update status $(date +%Y-%m-%d_%H:%M)"
+          git pull --rebase origin main || true
           git push origin main
 
       - name: Upload artifacts on failure

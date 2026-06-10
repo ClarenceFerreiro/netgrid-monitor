@@ -119,6 +119,34 @@ def send_telegram(text: str) -> bool:
         return False
 
 
+def create_github_issue(title: str, body: str) -> bool:
+    """Создаёт GitHub Issue как fallback, если Telegram недоступен."""
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if not token:
+        print("[WARN] GITHUB_TOKEN not set, cannot create issue")
+        return False
+
+    import urllib.request
+    import urllib.parse
+
+    # Определяем repo из GITHUB_REPOSITORY или используем дефолт
+    repo = os.environ.get("GITHUB_REPOSITORY", "ClarenceFerreiro/netgrid-monitor")
+    url = f"https://api.github.com/repos/{repo}/issues"
+    data = json.dumps({"title": title, "body": body, "labels": ["alert"]}).encode()
+
+    req = urllib.request.Request(url, data=data, method="POST")
+    req.add_header("Authorization", f"token {token}")
+    req.add_header("Content-Type", "application/json")
+    req.add_header("Accept", "application/vnd.github.v3+json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return resp.status == 201
+    except Exception as e:
+        print(f"[ERROR] GitHub issue creation failed: {e}")
+        return False
+
+
 def format_alert(results: list) -> str:
     """Форматирует сообщение об ошибках."""
     lines = ["🚨 <b>NetGrid Alert</b> 🚨", ""]
@@ -146,6 +174,42 @@ def format_alert(results: list) -> str:
 
     lines.append(f"<i>Checked: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</i>")
     return "\n".join(lines)
+
+
+def format_github_issue(results: list) -> tuple:
+    """Форматирует title и body для GitHub Issue."""
+    down_sites = [r for r in results if r["status"] != "up"]
+    ssl_warnings = [r for r in results if r.get("ssl_days_left") is not None and r["ssl_days_left"] <= SSL_WARNING_DAYS]
+
+    title_parts = []
+    if down_sites:
+        names = ", ".join([r["name"] for r in down_sites])
+        title_parts.append(f"DOWN: {names}")
+    if ssl_warnings:
+        names = ", ".join([r["name"] for r in ssl_warnings])
+        title_parts.append(f"SSL expire: {names}")
+
+    title = " | ".join(title_parts) if title_parts else "NetGrid Alert"
+    if len(title) > 120:
+        title = title[:117] + "..."
+
+    body_lines = ["## NetGrid Monitor Alert", ""]
+    for r in results:
+        status_icon = "✅" if r["status"] == "up" else "❌"
+        body_lines.append(f"### {status_icon} {r['name']}")
+        body_lines.append(f"- **URL:** {r['url']}")
+        body_lines.append(f"- **Status:** {r['status']}")
+        body_lines.append(f"- **HTTP Code:** {r['http_code'] or 'N/A'}")
+        if r["response_time_ms"]:
+            body_lines.append(f"- **Response Time:** {r['response_time_ms']}ms")
+        if r.get("ssl_days_left") is not None:
+            body_lines.append(f"- **SSL Days Left:** {r['ssl_days_left']}")
+        if r["error"]:
+            body_lines.append(f"- **Error:** {r['error']}")
+        body_lines.append("")
+
+    body_lines.append(f"_Checked at: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}_")
+    return title, "\n".join(body_lines)
 
 
 def main():
@@ -183,9 +247,15 @@ def main():
     # Send alert if needed
     alert_text = format_alert(results)
     if alert_text:
-        print("\n[SENDING ALERT TO TELEGRAM]")
+        print("\n[SENDING ALERT]")
         ok = send_telegram(alert_text)
-        print(f"Telegram: {'sent' if ok else 'failed'}")
+        if ok:
+            print("Telegram: sent")
+        else:
+            print("Telegram: failed, creating GitHub Issue...")
+            issue_title, issue_body = format_github_issue(results)
+            ok = create_github_issue(issue_title, issue_body)
+            print(f"GitHub Issue: {'created' if ok else 'failed'}")
     else:
         print("\n[ALL OK — no alerts needed]")
 

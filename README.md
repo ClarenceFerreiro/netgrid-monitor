@@ -9,7 +9,6 @@ Uptime monitoring для сайтов netgrid.host через **GitHub Actions**
 | babycloud.by | https://babycloud.by/ | HTTP 200, SSL expiry |
 | premiumfuji.by | https://premiumfuji.by/ | HTTP 200, SSL expiry |
 | refgroup.by | http://188.255.163.132/ (Host: refgroup.by) | HTTP 200 |
-| hermes.netgrid | https://hermes.netgrid.host/ | HTTP 200, SSL expiry |
 
 ## Интервал
 
@@ -24,7 +23,7 @@ Uptime monitoring для сайтов netgrid.host через **GitHub Actions**
 
 ### 1. Создать репозиторий на GitHub
 
-- Название: `netgrid-monitor` (или любое другое)
+- Название: `netgrid-monitor`
 - Public или Private — без разницы
 - **Не инициализировать** README (мы загрузим сами)
 
@@ -32,10 +31,10 @@ Uptime monitoring для сайтов netgrid.host через **GitHub Actions**
 
 В настройках репозитория → **Settings → Secrets and variables → Actions**:
 
-| Secret | Значение |
+| Secret | Описание |
 |--------|----------|
-| `TELEGRAM_BOT_TOKEN` | `8591899224:AAENwQdATG6TPNVcmuDCUAmQFtgdRNwbpJc` |
-| `TELEGRAM_CHAT_ID` | `405995403` |
+| `TELEGRAM_BOT_TOKEN` | Токен Telegram бота (получить у @BotFather) |
+| `TELEGRAM_CHAT_ID` | ID чата для уведомлений |
 
 ### 3. Загрузить файлы
 
@@ -68,7 +67,6 @@ SITES = [
 ## Локальный тест
 
 ```bash
-pip install requests
 python monitor.py
 ```
 

@@ -1,36 +1,36 @@
 {
   "status": "up",
-  "last_check": "2026-06-10T21:05:03.929842+00:00",
+  "last_check": "2026-06-10T21:21:23.992218+00:00",
   "sites": [
     {
       "name": "babycloud.by",
       "url": "https://babycloud.by/",
       "status": "up",
       "http_code": 200,
-      "response_time_ms": 85.0,
+      "response_time_ms": 1095.1,
       "ssl_days_left": 89,
       "error": null,
-      "checked_at": "2026-06-10T21:05:03.605583+00:00"
+      "checked_at": "2026-06-10T21:21:20.385204+00:00"
     },
     {
       "name": "premiumfuji.by",
       "url": "https://premiumfuji.by/",
       "status": "up",
       "http_code": 200,
-      "response_time_ms": 56.3,
+      "response_time_ms": 1028.5,
       "ssl_days_left": 89,
       "error": null,
-      "checked_at": "2026-06-10T21:05:03.797639+00:00"
+      "checked_at": "2026-06-10T21:21:21.839496+00:00"
     },
     {
       "name": "refgroup.by",
       "url": "http://188.255.163.132/",
       "status": "up",
       "http_code": 200,
-      "response_time_ms": 8.1,
+      "response_time_ms": 363.5,
       "ssl_days_left": null,
       "error": null,
-      "checked_at": "2026-06-10T21:05:03.920905+00:00"
+      "checked_at": "2026-06-10T21:21:23.628377+00:00"
     }
   ]
 }

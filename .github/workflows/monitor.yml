@@ -33,19 +33,6 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
-      - name: Commit and push status
-        run: |
-          git config user.name 'github-actions'
-          git config user.email 'github-actions@github.com'
-          git add status.json
-          git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git stash push -m "status-$(date +%s)"
-          git pull --rebase origin main
-          git stash pop || true
-          git add status.json
-          git commit -m "Update status $(date +%Y-%m-%d_%H:%M)"
-          git push origin main
-
       - name: Upload artifacts on failure
         if: failure()
         uses: actions/upload-artifact@v4
